@@ -1,5 +1,6 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QMainWindow,QTextEdit,QApplication, QWidget,QAction,QFileDialog
+from PyQt5.QtWidgets import QMainWindow,QTextEdit,QApplication, QWidget,QAction,QFileDialog,QShortcut,QColorDialog
+from PyQt5.QtGui import QTextCharFormat, QFont, QColor,QKeySequence
 import sys
 
 class NotePad(QMainWindow):
@@ -18,7 +19,8 @@ class NotePad(QMainWindow):
     def properties(self):
         menu = self.menuBar()
 
-        file_menu = menu.addMenu("Dosya")
+        file_menu = menu.addMenu("File")
+        file_menu2 = menu.addMenu("Style")
 
         new_page = QAction("New page",self)
         new_page.setShortcut("Ctrl+N")
@@ -42,6 +44,37 @@ class NotePad(QMainWindow):
         quit_page.triggered.connect(self.close)
         file_menu.addAction(quit_page)
 
+        bold_style = QAction("Bold",self)
+        bold_style.setShortcut("Ctrl+K")
+        bold_style.triggered.connect(self.set_bold)
+        file_menu2.addAction(bold_style)
+
+        color = QAction("Color",self)
+        color.triggered.connect(self.set_color)
+        file_menu2.addAction(color)
+
+    def set_color(self):
+        color = QColorDialog.getColor()
+        if color.isValid():
+            cursor = self.text_edit.textCursor()
+            char_format = QTextCharFormat()
+            char_format.setForeground(color)
+            cursor.mergeCharFormat(char_format)
+            self.text_edit.setCurrentCharFormat(char_format)
+
+    def init_bold(self):
+        bold_shortCut = QShortcut(QKeySequence("Ctrl+K"),self)
+        bold_shortCut.activated.connect(self.set_bold)
+
+    def set_bold(self):
+        cursor = self.text_edit.textCursor()
+        if not cursor.hasSelection():
+            return
+
+        char_format = QTextCharFormat()
+        char_format.setFontWeight(QFont.Bold)
+        cursor.mergeCharFormat(char_format)
+        self.text_edit.setCurrentCharFormat(char_format)
 
     def new_file(self):
         self.text_edit.clear()
